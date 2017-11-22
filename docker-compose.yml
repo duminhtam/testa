@@ -1,0 +1,37 @@
+version: '3'
+services:
+  testapp:
+    build:
+      context: ./testapp
+    image: testapp
+#    env_file: config.env
+#    volumes:
+#      - ./:/usr/src/api
+    ports:
+      - 8080:8080
+    links:
+      - redis:redis.local
+      - rsyslog:rsyslog
+    logging:
+          driver: syslog
+          options:
+            syslog-address: "udp://localhost:514"
+            syslog-facility: local0
+            tag: "testapp-cluster-1"
+#  redis:
+#    build:
+#      context: ./db
+#    env_file: .env
+#    image: redis
+#    ports:
+#      - 5435:5432
+  redis:
+    image: redis:latest
+    hostname: redis
+    volumes:
+      - ./testapp/resources/redis.conf:/usr/local/etc/redis/redis.conf
+  rsyslog:
+    image: wodby/rsyslog
+    hostname: rsyslog
+    ports:
+      - 515:514
